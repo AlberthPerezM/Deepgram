@@ -90,7 +90,7 @@ async function sendRecording() {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || "No se pudo transcribir el audio");
+      throw new Error(data.detail || data.error || "No se pudo transcribir el audio");
     }
 
     transcriptBox.value = data.transcript || "";

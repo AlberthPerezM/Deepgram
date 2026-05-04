@@ -1,6 +1,6 @@
 # Deepgram Transcription (Python)
 
-App local en Python para transcribir audio con Deepgram. Incluye CLI y una interfaz web para grabar desde el navegador.
+App local en Python para transcribir audio con Deepgram. Incluye CLI y una interfaz web con FastAPI para grabar desde el navegador.
 
 ## Requisitos
 
@@ -26,7 +26,7 @@ DEEPGRAM_API_KEY=tu_api_key_aqui
 Ejecuta:
 
 ```powershell
-python app.py
+python -m uvicorn app:app --reload
 ```
 
 Abre:

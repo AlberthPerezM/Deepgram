@@ -3,7 +3,9 @@ from pathlib import Path
 
 from deepgram import DeepgramClient
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from transcribe import transcribe_bytes, transcript_from_response
 
@@ -11,7 +13,8 @@ from transcribe import transcribe_bytes, transcript_from_response
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env", override=True)
 
-app = Flask(__name__)
+app = FastAPI(title="Deepgram Transcriptor")
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 
 def get_deepgram_api_key():
@@ -20,33 +23,29 @@ def get_deepgram_api_key():
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    return FileResponse(BASE_DIR / "templates" / "index.html")
 
 
 @app.post("/api/transcribe")
-def transcribe_audio():
+async def transcribe_audio(
+    audio: UploadFile = File(...),
+    language: str = Form("es"),
+    model: str = Form("nova-3"),
+):
     api_key = get_deepgram_api_key()
     if not api_key:
-        return jsonify({"error": "Falta DEEPGRAM_API_KEY en el archivo .env"}), 400
+        raise HTTPException(
+            status_code=400,
+            detail="Falta DEEPGRAM_API_KEY en el archivo .env",
+        )
 
-    audio = request.files.get("audio")
-    if audio is None:
-        return jsonify({"error": "No se recibio audio"}), 400
-
-    audio_bytes = audio.read()
+    audio_bytes = await audio.read()
     if not audio_bytes:
-        return jsonify({"error": "El audio esta vacio"}), 400
-
-    language = request.form.get("language", "es")
-    model = request.form.get("model", "nova-3")
+        raise HTTPException(status_code=400, detail="El audio esta vacio")
 
     try:
         client = DeepgramClient(api_key=api_key)
         response = transcribe_bytes(client, audio_bytes, model, language)
-        return jsonify({"transcript": transcript_from_response(response)})
+        return {"transcript": transcript_from_response(response)}
     except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
-
-
-if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
