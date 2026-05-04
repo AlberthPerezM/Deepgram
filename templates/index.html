@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deepgram Transcriptor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace" aria-label="Transcriptor de voz">
+        <header class="topbar">
+          <div>
+            <h1>Deepgram Transcriptor</h1>
+            <p>Graba desde el navegador y convierte tu voz a texto.</p>
+          </div>
+          <div class="status" id="status">Listo</div>
+        </header>
+
+        <div class="controls">
+          <label>
+            Idioma
+            <select id="language">
+              <option value="es">Espanol</option>
+              <option value="en">Ingles</option>
+              <option value="pt">Portugues</option>
+            </select>
+          </label>
+
+          <label>
+            Modelo
+            <select id="model">
+              <option value="nova-3">nova-3</option>
+              <option value="nova-2">nova-2</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="recorder">
+          <button id="recordButton" class="primary" type="button">Grabar</button>
+          <button id="stopButton" type="button" disabled>Detener</button>
+          <span id="timer">00:00</span>
+        </div>
+
+        <audio id="player" controls hidden></audio>
+
+        <section class="result" aria-label="Resultado">
+          <div class="resultHeader">
+            <h2>Transcripcion</h2>
+            <button id="copyButton" type="button" disabled>Copiar</button>
+          </div>
+          <textarea id="transcript" placeholder="Tu transcripcion aparecera aqui..." readonly></textarea>
+        </section>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
